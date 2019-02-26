@@ -1,0 +1,6 @@
+---
+- name: create users
+  hosts: instances
+
+  roles:
+    - create_users

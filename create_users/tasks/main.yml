@@ -1,0 +1,41 @@
+---
+# tasks file for add_users
+  - name: install sudo
+    apt: 
+      name: sudo
+      state: present
+      update_cache: yes
+
+  - name: add user ops
+    user:
+      name: ops
+      # 12345
+      password: '$6$1fieFqPzq4S.rWei$62W2vYHNJ8gTOCnFB0wOrIoSy.y8OMsFg.ewzAOotte5g/ARnfTT2YbMxsmeHmbt7VvQ8mnMai3AF2rkOy4W21'
+      shell: /bin/bash
+
+  - name: Set authorized key took from file
+    authorized_key:
+      user: ops
+      state: present
+      key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCq8wWkW3Zdv0YQdqbWAE6zbE4tplIJ1P+yoO6ZdJ5JE3flpsYEDx2IY0g7wPULD5owDpZHhz6L5yZReNbo1OhWlejT5iWIXndl6yXr2aPAkA7JsUWaXPgcB3drf5thP4UKhjf5kyssDXF2MMTONDaH4mkTTEFWldIWQpWDJDGIYBQfAm5LQlc68ge5DfRjHU+kq5t7Zoi7uoEX8j5XaqFaOk5QY2HUvyd/3kz1HT/TIqCg2AOxdsfB9LIrt8Ld89aHZpNdKaEA2wWYsx04vHv3+38JEnDr/d+teFwOnme36jkTXnoY3+6Vm6LnoNbyqKZzl/Ipl8LEhnOsAX4FM2WP lesha@leshas-MacBook-Pro.local'
+  
+  - name: is sudo present
+    stat: 
+      path: /etc/sudoers
+    register: sudoers
+    become: false
+
+  - name: include sudoers.d
+    lineinfile:
+      dest: /etc/sudoers
+      regexp: '^#includedir '
+      line: '#includedir /etc/sudoers.d'
+      validate: visudo -cf %s
+
+  - name: setup sudo
+    template:
+      src: 95-ansible-users.j2
+      dest: /etc/sudoers.d/95-ansible-users
+      mode: 0440
+      validate: visudo -cf %s
+
